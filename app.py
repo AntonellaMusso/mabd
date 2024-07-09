@@ -10,15 +10,12 @@ mongo = PyMongo(app)
 @app.route('/add', methods=['POST'])
 def add_user():
     data = request.get_json()
-    required_fields = ['username']
-
-    # Verificar que todos los campos requeridos están presentes
-    if all(field in data for field in required_fields):
+    
+    try:
         user_id = mongo.db.Perfiles.insert_one(data).inserted_id
         return jsonify({'message': 'Profile added successfully!', 'id': str(user_id)}), 201
-    else:
-        missing_fields = [field for field in required_fields if field not in data]
-        return jsonify({'error': 'Missing data!', 'missing_fields': missing_fields}), 400
+    except Exception as e:
+        return jsonify({'error': 'Failed to add profile!', 'details': str(e)}), 500
 
 
 @app.route('/users', methods=['GET'])
